@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 
 import config
 from src.bot import handlers
+from src.llm.client import LLMClient
 from src.memory.history_manager import HistoryManager
 from src.utils.logging_setup import setup_logging
 
@@ -15,21 +16,29 @@ async def main():
     history_manager = HistoryManager(
         max_size=config.HISTORY_MAX_MESSAGES,
         user_map=config.USER_ID_TO_NAME_MAP,
-        state_file="state.json"
+        state_file="state.json",
     )
     history_manager.load_state()
 
+    llm_client = LLMClient()
+    llm_lock = asyncio.Lock()
+
     bot = Bot(token=config.BOT_TOKEN)
+    bot_info = await bot.get_me()
+    bot_username = bot_info.username
+
     dp = Dispatcher()
-
     dp.include_router(handlers.router)
-
-    logging.info("Starting bot...")
     
-    # The line `await bot.delete_webhook(drop_pending_updates=True)` is removed.
-    # Now, aiogram will process all messages that the bot missed while it was offline.
+    logging.info(f"Starting bot @{bot_username}...")
     
-    await dp.start_polling(bot, history_manager=history_manager)
+    await dp.start_polling(
+        bot,
+        history_manager=history_manager,
+        llm_client=llm_client,
+        llm_lock=llm_lock,
+        bot_username=bot_username,
+    )
 
 
 if __name__ == "__main__":

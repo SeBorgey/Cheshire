@@ -5,6 +5,11 @@ BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
 OPENAI_API_KEY = "YOUR_OPENROUTER_KEY_HERE"
 OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
 
+# LLM Parameters
+LLM_MODEL_NAME = "deepseek/deepseek-chat-v3-0324:free"
+LLM_TEMPERATURE = 1
+LLM_MAX_TOKENS = 4096
+
 # Target chat ID for the bot to operate in
 # Note: For groups, this ID usually starts with a "-"
 TARGET_CHAT_ID = -1001234567890
