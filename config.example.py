@@ -1,0 +1,23 @@
+# Telegram Bot Token
+BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+
+# OpenRouter API Key and Base URL
+OPENAI_API_KEY = "YOUR_OPENROUTER_KEY_HERE"
+OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
+
+# Target chat ID for the bot to operate in
+# Note: For groups, this ID usually starts with a "-"
+TARGET_CHAT_ID = -1001234567890
+
+# A map of user IDs to their names for better context formatting
+USER_ID_TO_NAME_MAP = {
+    123456789: "Алексей",
+    987654321: "Мария",
+    111222333: "Сергей",
+}
+
+# Cooldown in seconds for proactive analysis
+PROACTIVE_COOLDOWN_SECONDS = 600  # 10 minutes
+
+# The number of latest messages to keep in memory
+HISTORY_MAX_MESSAGES = 100
