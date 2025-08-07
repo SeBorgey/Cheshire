@@ -22,7 +22,10 @@ async def main():
 
     llm_client = LLMClient()
     llm_lock = asyncio.Lock()
-    proactive_state = {"last_analysis_timestamp": 0}
+    bot_state = {
+        "last_llm_call_timestamp": 0,
+        "last_proactive_analysis_timestamp": 0,
+    }
 
     bot = Bot(token=config.BOT_TOKEN)
     bot_info = await bot.get_me()
@@ -38,7 +41,7 @@ async def main():
         history_manager=history_manager,
         llm_client=llm_client,
         llm_lock=llm_lock,
-        proactive_state=proactive_state,
+        bot_state=bot_state,
         bot_username=bot_username,
     )
 
