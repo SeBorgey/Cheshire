@@ -25,7 +25,6 @@ async def message_handler(
     bot_username: str,
 ):
     history_manager.add_message(message)
-    history_manager.save_state()
 
     is_reply_to_bot = (
         message.reply_to_message and 
@@ -38,14 +37,9 @@ async def message_handler(
             logging.info("Reactive mode triggered.")
             
             context = history_manager.get_formatted_history()
-            if not context:
-                logging.warning("Cannot generate reply with empty context.")
-                
-                return
-
             response_text = await llm_client.generate_reply(context)
 
             if response_text:
-                await message.reply(response_text)
-            else:
-                logging.error("LLM failed to generate a response.")
+                bot_response_message = await message.reply(response_text)
+                history_manager.add_message(bot_response_message)
+    history_manager.save_state()
