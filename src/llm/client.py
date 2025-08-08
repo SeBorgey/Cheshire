@@ -18,7 +18,7 @@ class LLMClient:
 
     async def generate_reply(self, context: str) -> str | None:
         messages = [
-            {"role": "system", "content": prompts.REACTIVE_SYSTEM_PROMPT},
+            {"role": "system", "content": prompts.LEGEND},
             {"role": "user", "content": context},
         ]
         try:
@@ -38,7 +38,7 @@ class LLMClient:
 
     async def decide_on_proactive_response(self, context: str) -> Tuple[bool, str]:
         messages = [
-            {"role": "system", "content": prompts.PROACTIVE_SYSTEM_PROMPT},
+            {"role": "system", "content": prompts.LEGEND + prompts.PROACTIVE_SYSTEM_PROMPT},
             {"role": "user", "content": context},
         ]
         try:
