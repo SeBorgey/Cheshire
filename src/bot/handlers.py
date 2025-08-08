@@ -28,24 +28,29 @@ async def message_handler(
 ):
     history_manager.add_message(message)
 
-    current_time = time.time()
-    last_call_time = bot_state.get("last_llm_call_timestamp", 0)
-
-    if current_time - last_call_time <= config.GLOBAL_LLM_COOLDOWN_SECONDS:
-        history_manager.save_state()
-        return
-
     is_reply_to_bot = (
         message.reply_to_message and 
         message.reply_to_message.from_user.id == bot.id
     )
     is_mention = message.text and f"@{bot_username}" in message.text
 
-    async with llm_lock:
-        if is_reply_to_bot or is_mention:
-            bot_state["last_llm_call_timestamp"] = current_time
-            logging.info("Reactive mode triggered.")
+    if is_reply_to_bot or is_mention:
+        async with llm_lock:
+            logging.info(f"Handler received a high-priority message {message.message_id}. Checking cooldowns...")
+
+            while time.time() - bot_state.get("last_llm_call_timestamp", 0) < config.GLOBAL_LLM_COOLDOWN_SECONDS:
+                logging.info(f"Global cooldown is active. Waiting...")
+                await asyncio.sleep(5)
+
+            if message.message_id <= bot_state.get("last_llm_trigger_message_id", 0):
+                logging.info(f"Message {message.message_id} was already processed by another task. Skipping.")
+                history_manager.save_state()
+                return
             
+            bot_state["last_llm_call_timestamp"] = time.time()
+            bot_state["last_llm_trigger_message_id"] = message.message_id
+            
+            logging.info(f"Handler is now processing message {message.message_id}.")
             context = history_manager.get_formatted_history()
             response_text = await llm_client.generate_reply(context)
             
@@ -53,21 +58,4 @@ async def message_handler(
                 bot_response_message = await message.reply(response_text)
                 history_manager.add_message(bot_response_message)
 
-        else:
-            last_analysis_time = bot_state.get("last_proactive_analysis_timestamp", 0)
-            if current_time - last_analysis_time > config.PROACTIVE_COOLDOWN_SECONDS:
-                bot_state["last_llm_call_timestamp"] = current_time
-                bot_state["last_proactive_analysis_timestamp"] = current_time
-                logging.info("Proactive mode triggered.")
-                
-                context = history_manager.get_formatted_history()
-                should_respond, response_text = await llm_client.decide_on_proactive_response(context)
-                
-                if should_respond and response_text:
-                    logging.info("LLM decided to respond proactively.")
-                    bot_response_message = await message.reply(text=response_text)
-                    history_manager.add_message(bot_response_message)
-                else:
-                    logging.info("LLM decided not to respond.")
-    
     history_manager.save_state()

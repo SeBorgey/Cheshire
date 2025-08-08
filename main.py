@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 
 import config
 from src.bot import handlers
+from src.bot.scanner import ProactiveScanner
 from src.llm.client import LLMClient
 from src.memory.history_manager import HistoryManager
 from src.utils.logging_setup import setup_logging
@@ -25,16 +26,21 @@ async def main():
     bot_state = {
         "last_llm_call_timestamp": 0,
         "last_proactive_analysis_timestamp": 0,
+        "last_llm_trigger_message_id": 0,
     }
 
     bot = Bot(token=config.BOT_TOKEN)
     bot_info = await bot.get_me()
     bot_username = bot_info.username
 
+    scanner = ProactiveScanner(bot, history_manager, llm_client, llm_lock, bot_state)
+    
     dp = Dispatcher()
     dp.include_router(handlers.router)
     
     logging.info(f"Starting bot @{bot_username}...")
+    
+    asyncio.create_task(scanner.start())
     
     await dp.start_polling(
         bot,

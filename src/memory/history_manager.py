@@ -13,7 +13,7 @@ class HistoryManager:
         self.seen_message_ids = set()
 
     def add_message(self, message: Message):
-        if not message.text or message.message_id in self.seen_message_ids:
+        if not hasattr(message, 'text') or not message.text or message.message_id in self.seen_message_ids:
             return
 
         self.seen_message_ids.add(message.message_id)
@@ -25,6 +25,9 @@ class HistoryManager:
             "timestamp": message.date.timestamp()
         }
         self.buffer.append(message_data)
+        
+    def get_last_message(self) -> dict | None:
+        return self.buffer[-1] if self.buffer else None
 
     def get_formatted_history(self) -> str:
         lines = []
