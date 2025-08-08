@@ -21,6 +21,9 @@ USER_ID_TO_NAME_MAP = {
     111222333: "Сергей",
 }
 
+# Cooldown in seconds for ANY LLM call to prevent rate-limiting
+GLOBAL_LLM_COOLDOWN_SECONDS = 60  # 1 minute
+
 # Cooldown in seconds for proactive analysis
 PROACTIVE_COOLDOWN_SECONDS = 600  # 10 minutes
 
