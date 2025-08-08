@@ -29,3 +29,6 @@ PROACTIVE_COOLDOWN_SECONDS = 600  # 10 minutes
 
 # The number of latest messages to keep in memory
 HISTORY_MAX_MESSAGES = 100
+
+# Set to True to enable proactive messages, False to only respond to replies/mentions
+PROACTIVE_MODE_ENABLED = True

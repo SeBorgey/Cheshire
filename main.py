@@ -31,17 +31,18 @@ async def main():
 
     bot = Bot(token=config.BOT_TOKEN)
     bot_info = await bot.get_me()
-    bot_username = bot_info.username
-
-    scanner = ProactiveScanner(bot, history_manager, llm_client, llm_lock, bot_state)
-    
+    bot_username = bot_info.username  
     dp = Dispatcher()
-    dp.include_router(handlers.router)
+    dp.include_router(handlers.router)    
     
+    if config.PROACTIVE_MODE_ENABLED:
+        logging.info("Proactive mode is ENABLED. Starting scanner...")
+        scanner = ProactiveScanner(bot, history_manager, llm_client, llm_lock, bot_state)
+        asyncio.create_task(scanner.start())
+    else:
+        logging.info("Proactive mode is DISABLED. Bot will only respond to replies and mentions.")
+
     logging.info(f"Starting bot @{bot_username}...")
-    
-    asyncio.create_task(scanner.start())
-    
     await dp.start_polling(
         bot,
         history_manager=history_manager,

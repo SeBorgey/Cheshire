@@ -68,7 +68,6 @@ class ProactiveScanner:
                 bot_response_message = await self.bot.send_message(
                     chat_id=config.TARGET_CHAT_ID,
                     text=response_text,
-                    reply_to_message_id=last_message_id,
                 )
                 self.history_manager.add_message(bot_response_message)
                 self.history_manager.save_state()
